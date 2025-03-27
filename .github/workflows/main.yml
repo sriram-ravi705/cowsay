@@ -6,9 +6,12 @@ on:
 jobs:
  deploy_kubernetes:
   runs-on: ubuntu-latest
+  env:
+    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   steps:
    - name: git checkout
-     uses: actions/checkout@v4
+     uses: actions/checkout@v4 
    - name: configure docker
      uses: docker/setup-buildx-action@v3
    - name: push docker image to docker repository
@@ -16,13 +19,16 @@ jobs:
       docker build -t sriramravi477/cowsay:${{ github.run_id }} .
       docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
       docker push sriramravi477/cowsay:${{ github.run_id }}
-   - name: config kubernetes
+   - name: setup kubernetes
      run: |
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-        chmod +x kubectl
-        mkdir -p ~/.local/bin
-        mv ./kubectl ~/.local/bin/kubectl
+      curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      chmod +x kubectl
+      mkdir -p ~/.local/bin
+      mv ./kubectl ~/.local/bin/kubectl
+   - name: update kubectl configuration
+     run: |
+      aws eks update-kubeconfig --region ${{ secret.REGION }} --name ${{ secret.CLUSTER_NAME }}
    - name: deploy kubernetes
      run: |
       kubectl apply -f ./manifest/
