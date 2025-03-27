@@ -1,10 +1,18 @@
 name: workflow to deploy cowsay app to kubernetes
-on: push
+on: 
+ push:
+  branches:
+    - main
 jobs:
  deploy_kubernetes:
   runs-on: ubuntu-latest
   steps:
    - name: git checkout
      uses: actions/checkout@v4
-   - name: print success message
-     run: echo "successfully pulled the code"
+   - name: configure docker
+     uses: docker/setup-buildx-action@v3
+   - name: push docker image to docker repository
+     run: |
+      docker build -t sriramravi477/cowsay:${{ github.run_id }} .
+      docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
+      docker push sriramravi477/cowsay:${{ github.run_id }}
