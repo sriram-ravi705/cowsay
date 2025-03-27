@@ -25,7 +25,7 @@ jobs:
         mv ./kubectl ~/.local/bin/kubectl
    - name: deploy kubernetes
      run: |
-      kubctl apply -f mainfest/
+      kubectl apply -f mainfest/
    - name: update image
      run: |
       kubectl set image deployment/wisecow-deployment wisecow-image=sriramravi477/cowsay:${{ github.run_id }}
