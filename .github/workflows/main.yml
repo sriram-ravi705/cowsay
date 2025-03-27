@@ -1,0 +1,10 @@
+name: workflow to deploy cowsay app to kubernetes
+on: push
+jobs:
+ deploy_kubernetes:
+  runs-on: ubuntu-lastest
+  steps:
+   - name: git checkout
+     uses: actions/checkout@v4
+   - name: print success message
+     run: echo "successfully pulled the code"
