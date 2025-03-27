@@ -2,7 +2,7 @@ name: workflow to deploy cowsay app to kubernetes
 on: push
 jobs:
  deploy_kubernetes:
-  runs-on: ubuntu-lastest
+  runs-on: ubuntu-latest
   steps:
    - name: git checkout
      uses: actions/checkout@v4
