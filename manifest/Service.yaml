@@ -7,7 +7,7 @@ spec:
     app: wisecow
   ports:
     - protocol: TCP
-      port: 80
+      port: 443
       targetPort: 4499
       nodePort: 30012
   type: LoadBalancer
