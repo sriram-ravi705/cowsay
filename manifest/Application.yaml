@@ -17,6 +17,6 @@ spec:
     spec:
      containers:
        - name: wisecow-image
-         image: sriramravi477/cowsay:14143833899
+         image: sriramravi477/cowsay:latest
          ports:
           - containerPort: 4499
