@@ -2,10 +2,11 @@ apiVersion: v1
 kind: Service
 metadata:
   name: wisecow-service-deployment
-  annotations:
-      service.beta.kubernetes.io/aws-load-balancer-type: "Classic"
-      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-east-1:296062579529:certificate/cac99cf3-3af7-452c-8fe1-5f98eed57834"
-      service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+  namespace: wise-deploy
+  # annotations:
+  #     service.beta.kubernetes.io/aws-load-balancer-type: "Classic"
+  #     service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-east-1:296062579529:certificate/cac99cf3-3af7-452c-8fe1-5f98eed57834"
+  #     service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
 spec:
   selector:
     app: wisecow
@@ -16,4 +17,4 @@ spec:
     - name: https
       port: 443
       targetPort: 4499
-  type: LoadBalancer
+  type: ClusterIP
