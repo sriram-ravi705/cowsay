@@ -175,6 +175,20 @@ jobs:
       run: |
         kubectl set image deployment/wisecow-deployment wisecow-image=sriramravi477/cowsay:${{ github.run_id }}
         kubectl rollout status deployment/wisecow-deployment
+
+    - name: Send email
+     if: ${{ always() }}
+     uses: dawidd6/action-send-mail@v4
+     with:
+      server_address: smtp.gmail.com
+      server_port: 465
+      secure: true
+      username: ${{ secrets.MAIL_ADDRESS }}
+      password: ${{ secrets.MAIL_PASSWORD }}
+      from: sriramravi477@gmail.com
+      to: mailme2sriram@gmail.com
+      subject: Wisecow Application Github Action Mail ${{ github.run_id }} - ${{ job.status }} - ${{ github.job }}.
+      body: your messages from github action deployment.
 ```
 
 ### **5. TLS Communication:**
