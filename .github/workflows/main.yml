@@ -44,7 +44,7 @@ jobs:
       kubectl set image deployment/wisecow-deployment wisecow-image=sriramravi477/cowsay:${{ github.run_id }}
       kubectl rollout status deployment/wisecow-deployment
    - name: Send email
-     if: ${{ always() }}
+    #  if: ${{ always() }}
      uses: devellany/send-mailer@v1.0.2
      with:
       host: smtp.google.com
