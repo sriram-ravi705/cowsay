@@ -16,10 +16,7 @@ The Wisecow application runs the Cowsay and Fortune-mod programs via shell scrip
 - **TLS**: For encrypting communications between the client and server.
 - **NGINX Ingress Controller**: For routing external traffic to the application.
 - **Certificate Manager**: For SSL Certification creation
-##
-##
-##
-##
+
 ## <a name="_enasb1u4bkn4"></a><a name="_emt1k2a3ze0"></a><a name="_wal6mzsi0roc"></a><a name="_4psj0e8e9uu7"></a><a name="_mki92kj6svs"></a>**Diagram**
 ![](Aspose.Words.21dbd3b3-04de-4f79-8ac0-e0a2397395d9.001.png)
 
@@ -62,7 +59,7 @@ kind: Service
 
 metadata:
 
-`  `name: wisecow-service-deployment
+  `name: wisecow-service-deployment
 
 `  `namespace: wise-deploy
 
