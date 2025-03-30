@@ -43,3 +43,18 @@ jobs:
      run: |
       kubectl set image deployment/wisecow-deployment wisecow-image=sriramravi477/cowsay:${{ github.run_id }}
       kubectl rollout status deployment/wisecow-deployment
+   - name: Send email
+     if: ${{ always() }}
+     uses: devellany/send-mailer@v1.0.2
+     with:
+      host: smtp.google.com
+      port: 465
+      account: ${{ secrets.MAIL_ADDRESS }}
+      password: ${{ secrets.MAIL_PASSWORD }}
+      sender: devellany
+      from: ${{ secrets.MAIL_ADDRESS }}
+      to: mailme2sriram@gmail.com
+      subject: Wisecow Application Github Action Mail ${{ github.run_id }}.
+      body: your messages from github action deployment.
+      contentType: text/plain
+      attachments: '[{"path":"README.md"}]'
