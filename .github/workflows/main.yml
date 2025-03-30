@@ -51,7 +51,6 @@ jobs:
       server_port: 465
       username: ${{ secrets.MAIL_ADDRESS }}
       password: ${{ secrets.MAIL_PASSWORD }}
-      sender: devellany
       from: ${{ secrets.MAIL_ADDRESS }}
       to: mailme2sriram@gmail.com
       subject: Wisecow Application Github Action Mail ${{ github.run_id }} - ${{ job.status }} - ${{ github.job }}.
