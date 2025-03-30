@@ -59,7 +59,7 @@ kind: Service
 
 metadata:
 
-  `name: wisecow-service-deployment
+`  `name: wisecow-service-deployment
 
 `  `namespace: wise-deploy
 
