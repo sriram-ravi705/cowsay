@@ -66,7 +66,7 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 4499
-  type: ClusterIP
+  type: ClusterIP```
 
 ### <a name="_30qitufdhkv"></a>**3. Ingress Setup:**
 To route external traffic to the Wisecow application, an Ingress was set up. The Ingress provides HTTP(S) routing to the service inside the Kubernetes cluster.
