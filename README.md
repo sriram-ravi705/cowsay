@@ -53,78 +53,45 @@ For deploying the Wisecow application on Kubernetes:
 
 **Sample Kubernetes Service Manifest:**
 
+```yaml
 apiVersion: v1
-
 kind: Service
-
 metadata:
-
-`  `name: wisecow-service-deployment
-
-`  `namespace: wise-deploy
-
+  name: wisecow-service-deployment
+  namespace: wise-deploy
 spec:
-
-`  `selector:
-
-`    `app: wisecow
-
-`  `ports:
-
-`    `- protocol: TCP
-
-`      `port: 80
-
-`      `targetPort: 4499
-
-`  `type: ClusterIP
-
-
-
-
-
-
+  selector:
+    app: wisecow
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 4499
+  type: ClusterIP
 
 ### <a name="_30qitufdhkv"></a>**3. Ingress Setup:**
 To route external traffic to the Wisecow application, an Ingress was set up. The Ingress provides HTTP(S) routing to the service inside the Kubernetes cluster.
 
 **Sample Ingress Manifest:**
 
+```yaml
 apiVersion: networking.k8s.io/v1
-
 kind: Ingress
-
 metadata:
-
-`  `name: ingress-myservicea
-
-`  `namespace: wise-deploy
-
+  name: ingress-myservicea
+  namespace: wise-deploy
 spec:
-
-`  `rules:
-
-`  `- host: sriramdevopsengineer.site
-
-`    `http:
-
-`      `paths:
-
-`      `- path: /
-
-`        `pathType: Prefix
-
-`        `backend:
-
-`          `service:
-
-`            `name: wisecow-service-deployment
-
-`            `port:
-
-`              `number: 80
-
-`  `ingressClassName: nginx
+  rules:
+  - host: sriramdevopsengineer.site
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: wisecow-service-deployment
+            port:
+              number: 80
+  ingressClassName: nginx
 
 **Node Ingress Setup:**
 
@@ -132,21 +99,20 @@ spec:
 
 ![](Aspose.Words.21dbd3b3-04de-4f79-8ac0-e0a2397395d9.004.png)
 
-1. Download the deploy.yaml file and open it
+2. Download the deploy.yaml file and open it
 
-1. Add the vpc cidr block in the proxy-real-ip-cidr
+3. Add the vpc cidr block in the proxy-real-ip-cidr
 
-   ![](Aspose.Words.21dbd3b3-04de-4f79-8ac0-e0a2397395d9.005.png)
+![](Aspose.Words.21dbd3b3-04de-4f79-8ac0-e0a2397395d9.005.png)
 
-
-
-1. Add the service.beta.kubernetes.io/aws-load-balancer-ssl-cert
+4. Add the service.beta.kubernetes.io/aws-load-balancer-ssl-cert
 
 ![](Aspose.Words.21dbd3b3-04de-4f79-8ac0-e0a2397395d9.006.png)
 
-1. Add the below text to make the load balancer internet facing: 	 service.beta.kubernetes.io/aws-load-balancer-internal: "false"
+5. Add the text to make the load balancer internet facing: service.beta.kubernetes.io/aws-load-balancer-internal: "false"
 
-`	`![](Aspose.Words.21dbd3b3-04de-4f79-8ac0-e0a2397395d9.007.png)
+![](Aspose.Words.21dbd3b3-04de-4f79-8ac0-e0a2397395d9.007.png)
+
 ### <a name="_beqrhv5355rh"></a>**4. CI/CD Pipeline:**
 To automate the process of building and deploying the application:
 
@@ -154,95 +120,63 @@ To automate the process of building and deploying the application:
 - **Automated Image Build and Push**: The pipeline automatically builds the Docker image and pushes it to a container registry whenever changes are made to the repository.
 - **Automated Deployment**: Once the image is pushed, the application is automatically deployed to the Kubernetes environment.
 ### <a name="_ls9va8aur1p2"></a>**GitHub Actions Workflow (main.yml)**
-name: workflow to deploy cowsay app to kubernetes
+```yaml
+name: Workflow to deploy cowsay app to Kubernetes
 
-on: 
-
-` `push:
-
-`  `branches:
-
-`    `- main
+on:
+  push:
+    branches:
+      - main
 
 jobs:
+  deploy_kubernetes:
+    runs-on: ubuntu-latest
 
-` `deploy\_kubernetes:
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-`  `runs-on: ubuntu-latest
+    steps:
+    - name: Git checkout
+      uses: actions/checkout@v4 
 
-`  `env:
+    - name: Setup AWS CLI
+      run: |
+        sudo apt-get update -y
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        sudo apt-get install unzip -y
+        unzip awscliv2.zip
+        sudo ./aws/install --update
 
-`    `AWS\_ACCESS\_KEY\_ID: ${{ secrets.AWS\_ACCESS\_KEY\_ID }}
+    - name: Configure Docker
+      uses: docker/setup-buildx-action@v3
 
-`    `AWS\_SECRET\_ACCESS\_KEY: ${{ secrets.AWS\_SECRET\_ACCESS\_KEY }}
+    - name: Push Docker image to Docker repository
+      run: |
+        docker build -t sriramravi477/cowsay:${{ github.run_id }} .
+        docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
+        docker push sriramravi477/cowsay:${{ github.run_id }}
 
-`  `steps:
+    - name: Setup Kubernetes
+      run: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+        chmod +x kubectl
+        mkdir -p ~/.local/bin
+        mv ./kubectl ~/.local/bin/kubectl
 
-`   `- name: git checkout
+    - name: Update kubectl configuration
+      run: |
+        aws eks update-kubeconfig --region ${{ secrets.REGION }} --name ${{ secrets.CLUSTER_NAME }}
 
-`     `uses: actions/checkout@v4 
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl apply -f ./manifest/
 
-`   `- name: setup aws cli 
-
-`     `run: |
-
-`      `sudo apt-get update -y
-
-`      `curl "https://awscli.amazonaws.com/awscli-exe-linux-x86\_64.zip" -o "awscliv2.zip"
-
-`      `sudo apt-get install unzip -y
-
-`      `unzip awscliv2.zip
-
-`      `sudo ./aws/install --update
-
-`   `- name: configure docker
-
-`     `uses: docker/setup-buildx-action@v3
-
-`   `- name: push docker image to docker repository
-
-`     `run: |
-
-`      `docker build -t sriramravi477/cowsay:${{ github.run\_id }} .
-
-`      `docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
-
-`      `docker push sriramravi477/cowsay:${{ github.run\_id }}
-
-`   `- name: setup kubernetes
-
-`     `run: |
-
-`      `curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-
-`      `sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-
-`      `chmod +x kubectl
-
-`      `mkdir -p ~/.local/bin
-
-`      `mv ./kubectl ~/.local/bin/kubectl
-
-`   `- name: update kubectl configuration
-
-`     `run: |
-
-`      `aws eks update-kubeconfig --region ${{ secrets.REGION }} --name ${{ secrets.CLUSTER\_NAME }}
-
-`   `- name: deploy kubernetes
-
-`     `run: |
-
-`      `kubectl apply -f ./manifest/
-
-`   `- name: update image
-
-`     `run: |
-
-`      `kubectl set image deployment/wisecow-deployment wisecow-image=sriramravi477/cowsay:${{ github.run\_id }}
-
-`      `kubectl rollout status deployment/wisecow-deployment
+    - name: Update image
+      run: |
+        kubectl set image deployment/wisecow-deployment wisecow-image=sriramravi477/cowsay:${{ github.run_id }}
+        kubectl rollout status deployment/wisecow-deployment
 
 ### <a name="_yq56es57t4x7"></a>**GitHub Secrets:**
 For the workflow to function correctly, you'll need to store the following secrets in your GitHub repository:
@@ -252,12 +186,6 @@ For the workflow to function correctly, you'll need to store the following secre
 - **KUBECONFIG**: The kubeconfig file content (for Kubernetes cluster access).
 - **AWS\_ACCESS\_KEY\_ID**: Your Aws Access Key Id
 - **AWS\_SECRET\_ACCESS\_KEY**: Your Aws Secret Key Id
-
-
-
-
-
-
 
 ### <a name="_zxom51rr3q0"></a>**How to Add GitHub Secrets:**
 1. Go to your GitHub repository.
