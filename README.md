@@ -22,7 +22,11 @@ The **Wisecow** application runs the **Cowsay** and **Fortune-mod** programs via
 
 ## **Diagram**
 
-![Architecture Diagram](path/to/your/diagram.png)
+![Architecture Diagram](./diagram/cd.png)
+
+![Architecture Diagram](./diagram/urser.png)
+
+![Architecture Diagram](./diagram/nginx.png)
 
 ## **Project Components:**
 
